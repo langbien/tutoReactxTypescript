@@ -1,0 +1,194 @@
+En React, un hook est une fonction qui permet d'utiliser l'état et d'autres fonctionnalités de React dans un composant fonctionnel. Il existe plusieurs hooks intégrés fournis par React, ainsi que des hooks personnalisés que vous pouvez créer vous-même.
+
+Voici quelques-uns des hooks intégrés couramment utilisés dans React :
+
+useState : Ce hook permet d'ajouter de l'état à vos composants fonctionnels, ce qui était auparavant seulement possible dans les composants de classe.
+
+useEffect : Ce hook permet d'effectuer des effets de bord, tels que l'abonnement à une source de données ou la mise à jour du DOM, en réponse aux mises à jour de l'état ou aux changements de propriétés.
+
+useContext : Ce hook permet de consommer des contextes React, qui permettent de passer des données à travers l'arbre des composants sans avoir à les transmettre explicitement à chaque niveau.
+
+useRef : Ce hook permet de créer une référence mutable qui persiste entre les rendus et peut être utilisée pour stocker des données ou accéder à des éléments du DOM.
+
+useCallback : Ce hook permet de memoïzer une fonction et de la rendre stable entre les rendus, afin d'éviter les re-rendus inutiles de composants enfants.
+
+useMemo : Ce hook permet de memoïzer une valeur calculée et de la rendre stable entre les rendus, afin d'éviter les recalculs inutiles.
+
+useReducer : Ce hook permet de gérer l'état d'un composant en utilisant un reducer, qui est une fonction pure qui prend l'état actuel et une action et renvoie le nouvel état.
+
+custom hooks : Ce sont des hooks que vous pouvez créer vous-même pour encapsuler une logique complexe et réutilisable dans une fonction que vous pouvez appeler depuis plusieurs composants.
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+HOOK useCallback => 
+En React, useCallback est un hook qui permet de memoïzer une fonction et de la rendre stable entre les rendus, afin d'éviter les re-rendus inutiles de composants enfants.
+
+Lorsqu'une fonction est passée en tant que propriété à un composant enfant, elle est recréée à chaque rendu du composant parent. Cela peut entraîner des re-rendus inutiles des composants enfants, car ils considèrent la nouvelle fonction comme une propriété différente de la fonction précédente, même si elles ont la même implémentation.
+
+En utilisant useCallback, la fonction est memoïzée et renvoyée de manière stable entre les rendus. Cela signifie que la même instance de fonction est utilisée à chaque rendu tant que les dépendances passées en paramètre ne changent pas. Cela permet d'éviter les re-rendus inutiles des composants enfants, car ils considèrent la fonction comme étant la même que la fonction précédente.
+
+Voici un exemple d'utilisation de useCallback :
+
+Code exemple :
+import React, { useCallback } from 'react';
+
+function MyComponent({ handleClick }) {
+  const memoizedHandleClick = useCallback(() => {
+    handleClick('some data');
+  }, [handleClick]);
+
+  return (
+    <button onClick={memoizedHandleClick}>Click me</button>
+  );
+}
+Dans cet exemple, handleClick est une fonction passée en tant que propriété à MyComponent. Nous utilisons useCallback pour memoïzer la fonction et créer une nouvelle instance uniquement lorsque handleClick change. memoizedHandleClick est ensuite utilisé comme gestionnaire d'événement pour le bouton.
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+HOOK useRef => 
+En React, useRef est un hook qui permet de créer une référence mutable vers un élément du DOM ou vers une valeur quelconque qui doit persister entre les rendus du composant.
+
+Contrairement à l'état (ou state), qui est utilisé pour stocker des données qui changent et qui déclenchent un nouveau rendu du composant, une référence (ou ref) permet simplement de récupérer des informations sur un élément du DOM ou de stocker des données qui ne nécessitent pas de mise à jour.
+
+Pour utiliser useRef, vous pouvez l'appeler dans votre composant React, comme suit :
+
+Code exemple :
+import { useRef } from 'react';
+
+function Example() {
+  const inputRef = useRef(null);
+
+   function handleClick() {
+    inputRef.current.focus();
+  }
+
+  return (
+    <div>
+      <input type="text" ref={inputRef} />
+      <button onClick={handleClick}>Focus sur l'input </button>
+    </div>
+  );
+}
+Dans cet exemple, nous avons créé une référence inputRef à l'aide de useRef, qui est initialement définie à null. Nous avons ensuite utilisé cette référence pour récupérer l'élément input du DOM, en la passant en tant que prop ref à l'élément input.
+
+Ensuite, nous avons créé une fonction handleClick() qui sera appelée lorsque le bouton est cliqué. Cette fonction utilise la référence inputRef pour accéder à l'élément input du DOM et le mettre en focus. Comme la référence est persistante entre les rendus du composant, elle peut être utilisée pour stocker des données qui doivent être accessibles à tout moment, sans déclencher un nouveau rendu du composant.
+Pour typescript, le problème des références c'est que généralement nous avons pas de valeur initiale, donc dans le hook on peut spécifier le type que l'on aura à l'intérieur, exemple : const ref = useRef<HTMLButtonElement>(null) ici je lui dit que je cible le html du button element.
+
+    export const Counter: FunctionComponent<Props> = ({start = 0, children}) => {
+
+
+        const [n, setN] = useState(start)
+        const ref = useRef<HTMLButtonElement>(null)
+        const incr = () => setN(n => n + 1) 
+    
+    return <div>
+        <h2>Compteur</h2>
+        {children}
+        <p>
+            Numéro : {n}
+        </p>
+        <button ref={ref} onClick={incr}>Incrémenter</button> 
+    </div>
+}
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ReactNode => 
+Le type ReactNode concerne tout ce qui peut être un noeud react, il acceptera null, les chaînes de caractères, undefined etc... ça concerne finalement tout ce qu'on pourrait avoir en children. Dès lors que l'on aura une propriété qui peut recevoir un noeud c'est donc de cette façon que nous devront le typer.
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+forwardRef => 
+C'est une fonctionnalité de React qui permet de passer une référence (ou ref) à un composant enfant à partir d'un composant parent. Cela est utile lorsque vous avez besoin d'accéder aux méthodes ou aux propriétés d'un composant enfant à partir du composant parent.
+
+Voici comment cela fonctionne :
+
+Supposons que vous avez un composant parent qui rend un composant enfant :
+
+function Parent() {
+  return <Child />;
+}
+Maintenant, supposons que vous voulez appeler une méthode sur le composant enfant à partir du composant parent. Normalement, vous créeriez une référence sur le composant enfant et la passeriez au composant parent :
+
+function Child() {
+  const myRef = useRef(null);
+  const myMethod = () => { /* faire quelque chose */ };
+  
+  // ...
+  
+  return <div ref={myRef}>Enfant</div>;
+}
+
+function Parent() {
+  const childRef = useRef(null);
+  
+  const handleClick = () => {
+    childRef.current.myMethod(); // appeler la méthode du composant enfant
+  };
+  
+  return (
+    <div>
+      <Child ref={childRef} />
+      <button onClick={handleClick}>Appeler la méthode enfant</button>
+    </div>
+  );
+}
+Cependant, cette approche ne fonctionnera pas dans certains cas, comme lorsque le composant enfant est un composant fonctionnel qui n'accepte pas de référence en tant que prop.
+
+C'est là que forwardRef intervient. Vous pouvez utiliser forwardRef pour créer un nouveau composant qui passe une référence à son composant enfant :
+
+const Child = React.forwardRef((props, ref) => {
+  const myMethod = () => { /* faire quelque chose */ };
+  
+  // ...
+  
+  return <div ref={ref}>Enfant</div>;
+});
+
+function Parent() {
+  const childRef = useRef(null);
+  
+  const handleClick = () => {
+    childRef.current.myMethod(); // appeler la méthode du composant enfant
+  };
+  
+  return (
+    <div>
+      <Child ref={childRef} />
+      <button onClick={handleClick}>Appeler la méthode enfant</button>
+    </div>
+  );
+}
+Avec forwardRef, vous pouvez maintenant créer un composant enfant qui accepte une référence et la transmet à son composant enfant. Cela permet au composant parent d'accéder aux méthodes et aux propriétés du composant enfant de la même manière que s'il avait une référence directe.
+-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Context => 
+En React, le contexte (context en anglais) est un mécanisme qui permet de partager des données entre des composants sans avoir à les transmettre explicitement par des propriétés.
+
+Le contexte est particulièrement utile pour des données qui doivent être accessibles à de nombreux composants à différents niveaux de l'arbre des composants, tels que des thèmes, des préférences utilisateur, des données d'authentification, etc.
+
+Le contexte est créé à l'aide de la fonction createContext() de React, qui renvoie un objet avec deux propriétés : Provider et Consumer. Le Provider est utilisé pour fournir les données, et le Consumer est utilisé pour consommer les données.
+
+Voici un exemple de contexte dans React :
+
+import React, { createContext, useState } from 'react';
+
+const MyContext = createContext();
+
+function MyProvider({ children }) {
+  const [data, setData] = useState('Hello World');
+
+  return (
+    <MyContext.Provider value={{ data, setData }}>
+      {children}
+    </MyContext.Provider>
+  );
+}
+
+function MyComponent() {
+  return (
+    <MyContext.Consumer>
+      {({ data }) => <div>{data}</div>}
+    </MyContext.Consumer>
+  );
+}
+Dans cet exemple, MyContext est créé à l'aide de createContext(). MyProvider est ensuite créé pour fournir les données via MyContext.Provider. Les données sont stockées dans un état local à l'aide de useState() et sont fournies à l'aide de la valeur de MyContext.Provider.
+
+MyComponent consomme les données fournies par MyProvider via MyContext.Consumer. La fonction enfant du Consumer reçoit les données sous forme d'objet, qui sont ensuite utilisées pour afficher le texte "Hello World".
+
+Il est important de noter que les composants consommateurs de contexte seront re-renderisés à chaque fois que le contexte change, même s'ils n'utilisent pas les données fournies. Cela peut avoir un impact sur les performances, donc il est recommandé d'utiliser le contexte avec parcimonie et de manière ciblée.
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+
